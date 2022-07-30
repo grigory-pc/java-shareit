@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 @Repository
 public class ItemStorageInMemory implements ItemStorage {
     private long itemIdGenerated;
-    private final List<ItemDto> items = new ArrayList<>();
     private final Map<Long, List<ItemDto>> userItems = new HashMap<>();
 
     /**
@@ -76,10 +75,9 @@ public class ItemStorageInMemory implements ItemStorage {
      */
     @Override
     public void delete(long userId, long itemId) {
-        for (ItemDto itemDtoExisting : userItems.get(userId)) {
-            if (itemDtoExisting.getId() == itemId) {
-                items.remove(itemDtoExisting);
-                return;
+        for (ItemDto itemOfUser : userItems.get(userId)) {
+            if (itemOfUser.getId() == itemId) {
+                userItems.get(userId).remove(itemOfUser);
             }
         }
     }
