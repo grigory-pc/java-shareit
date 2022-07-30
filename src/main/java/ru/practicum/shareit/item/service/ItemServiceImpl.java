@@ -81,12 +81,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void validationId(long id) {
-        try {
-            if (id <= 0) {
-                throw new ValidationException("id должен быть больше 0");
-            }
-        } catch (ValidationException e) {
-            throw e;
+        if (id <= 0) {
+            throw new ValidationException("id должен быть больше 0");
         }
     }
 }

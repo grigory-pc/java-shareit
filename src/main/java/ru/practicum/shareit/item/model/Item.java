@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -9,7 +8,6 @@ import lombok.RequiredArgsConstructor;
  * Объект вещи
  */
 @Data
-@Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Item {

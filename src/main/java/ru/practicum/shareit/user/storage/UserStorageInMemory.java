@@ -1,8 +1,7 @@
 package ru.practicum.shareit.user.storage;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -10,8 +9,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-@RequiredArgsConstructor
+@Repository
 public class UserStorageInMemory implements UserStorage {
     private long id;
     private final List<UserDto> users = new ArrayList<>();

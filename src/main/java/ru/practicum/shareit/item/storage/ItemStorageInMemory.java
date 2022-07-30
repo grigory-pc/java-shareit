@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.storage;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 
@@ -14,8 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Класс, ответственный за хранение объектов вещей в памяти
  */
-@Component
-@RequiredArgsConstructor
+@Repository
 public class ItemStorageInMemory implements ItemStorage {
     private long itemIdGenerated;
     private final List<ItemDto> items = new ArrayList<>();
