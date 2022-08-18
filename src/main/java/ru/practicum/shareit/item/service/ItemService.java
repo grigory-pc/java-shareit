@@ -10,7 +10,7 @@ import java.util.List;
 public interface ItemService {
     List<ItemDto> getItems(long userId);
 
-    ItemDto getItemById(long userId, long itemId);
+    ItemDto getItemById(long itemId);
 
     ItemDto addNewItem(long userId, ItemDto itemDto);
 

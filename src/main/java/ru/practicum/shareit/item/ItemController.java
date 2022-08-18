@@ -37,7 +37,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
                                @PathVariable long itemId) {
-        return itemService.getItemById(userId, itemId);
+        return itemService.getItemById(itemId);
     }
 
     /**
@@ -58,7 +58,7 @@ public class ItemController {
      * @return возвращает объект вещи, который был создан
      */
     @PostMapping
-    public ItemDto add(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDto add(@RequestHeader("X-Sharer-User-Id") long userId,
                        @Valid @RequestBody ItemDto itemDto) {
         return itemService.addNewItem(userId, itemDto);
     }
@@ -71,7 +71,7 @@ public class ItemController {
      * @return возвращает обновленный объект вещи
      */
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId,
                           @PathVariable long itemId,
                           @RequestBody ItemDto itemDto) {
         return itemService.updateItem(userId, itemId, itemDto);

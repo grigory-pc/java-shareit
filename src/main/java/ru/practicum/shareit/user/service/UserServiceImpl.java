@@ -2,8 +2,11 @@ package ru.practicum.shareit.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.Validation;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.storage.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
@@ -13,11 +16,15 @@ import java.util.List;
  */
 @Service
 public class UserServiceImpl implements UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
+    @Autowired
+    private Validation validation;
+    @Autowired
+    private UserMapper userMapper;
 
     @Autowired
-    public UserServiceImpl(UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     /**
@@ -25,7 +32,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<UserDto> getUserAll() {
-        return userStorage.getUserAll();
+        List<User> users = userRepository.findAll();
+        return userMapper.toDto(users);
     }
 
     /**
@@ -33,9 +41,12 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto getUserById(long userId) {
-        validationId(userId);
+        validation.validationId(userId);
+        if (userRepository.findById(userId) == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
 
-        return userStorage.getUserById(userId);
+        return userMapper.toDto(userRepository.findById(userId));
     }
 
     /**
@@ -43,7 +54,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto add(UserDto userDto) {
-        return userStorage.add(userDto);
+        User newUser = userRepository.save(userMapper.toUser(userDto));
+
+        return userMapper.toDto(newUser);
     }
 
     /**
@@ -51,10 +64,14 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto update(long userId, UserDto userDto) {
-        validationId(userId);
+        validation.validationId(userId);
 
-        UserDto userDtoExisting = getUserById(userId);
-        return userStorage.update(userId, userDtoExisting, userDto);
+        userDto.setId(userId);
+        User userForUpdate = userRepository.findById(userId);
+        userMapper.updateUserFromDto(userDto, userForUpdate);
+        User updatedUser = userRepository.save(userForUpdate);
+
+        return userMapper.toDto(updatedUser);
     }
 
     /**
@@ -62,14 +79,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void delete(long userId) {
-        validationId(userId);
+        validation.validationId(userId);
 
-        userStorage.delete(userId);
-    }
-
-    private void validationId(long id) {
-        if (id <= 0) {
-            throw new ValidationException("id должен быть больше 0");
-        }
+        userRepository.deleteById(userId);
     }
 }
