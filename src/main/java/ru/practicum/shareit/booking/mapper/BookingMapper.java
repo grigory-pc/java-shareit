@@ -1,7 +1,9 @@
 package ru.practicum.shareit.booking.mapper;
 
 import org.mapstruct.*;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingInDto;
+import ru.practicum.shareit.booking.dto.BookingOutDto;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.model.Booking;
 
 import java.util.List;
@@ -11,18 +13,22 @@ import java.util.List;
  */
 @Mapper(componentModel = "spring")
 public interface BookingMapper {
-    Booking toBooking(BookingDto dto);
+    Booking toBooking(BookingInDto dto);
 
-    @Mapping(target="bookerId", source="user.id")
-    @Mapping(target="itemId", source="item.id")
-    @Mapping(target="itemName", source="item.name")
-    BookingDto toDto(Booking booking);
+    BookingInDto toDto(Booking booking);
 
-    @Mapping(target="bookerId", source="user.id")
-    @Mapping(target="itemId", source="item.id")
-    @Mapping(target="itemName", source="item.name")
-    List<BookingDto> toDto(Iterable<Booking> booking);
+    List<BookingInDto> toDto(Iterable<Booking> booking);
+
+    @Mapping(target = "booker", source = "user")
+    BookingOutDto toOutDto(Booking booking);
+
+    @Mapping(target = "booker", source = "user")
+    List<BookingOutDto> toOutDto(Iterable<Booking> booking);
+
+    @Mapping(target = "bookerId", source = "user.id")
+    BookingShortDto toShortDto(Booking booking);
+
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateBookingFromDto(BookingDto bookingDto, @MappingTarget Booking booking);
+    void updateBookingFromDto(BookingInDto bookingInDto, @MappingTarget Booking booking);
 }

@@ -1,7 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import ru.practicum.shareit.booking.State;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingInDto;
+import ru.practicum.shareit.booking.dto.BookingOutDto;
 
 import java.util.List;
 
@@ -9,19 +10,17 @@ import java.util.List;
  * Интерфейс для бронирования вещей
  */
 public interface BookingService {
-    List<BookingDto> getBookings(long userId);
+    List<BookingOutDto> getBookings(long userId);
 
-    BookingDto getBookingById(long userId, long bookingId);
+    BookingOutDto getBookingById(long userId, long bookingId);
 
-    List<BookingDto> getBookingsByBookerId(long userId, State state);
+    List<BookingOutDto> getBookingsByBookerId(long userId, State state);
 
-    List<BookingDto> getBookingsByOwnerId(long userId, State state);
+    List<BookingOutDto> getBookingsByOwnerId(long userId, State state);
 
-    BookingDto addNewBooking(long userId, BookingDto bookingDto);
+    BookingInDto addNewBooking(long userId, BookingInDto bookingInDto);
 
-    BookingDto updateBooking(long userId, long bookingId, boolean approved, BookingDto bookingDto);
+    BookingOutDto updateBookingStatus(long userId, long bookingId, boolean approved);
 
     void deleteBooking(long userId, long bookingId);
-
-
 }

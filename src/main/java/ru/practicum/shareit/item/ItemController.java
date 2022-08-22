@@ -2,7 +2,9 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemShortDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -37,7 +39,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
                                @PathVariable long itemId) {
-        return itemService.getItemById(itemId);
+        return itemService.getItemDtoById(userId, itemId);
     }
 
     /**
@@ -47,7 +49,7 @@ public class ItemController {
      * @return список объектов вещей
      */
     @GetMapping("/search")
-    public List<ItemDto> searchItemByText(@RequestParam String text) {
+    public List<ItemShortDto> searchItemByText(@RequestParam String text) {
         return itemService.searchItemByText(text);
     }
 
@@ -58,9 +60,23 @@ public class ItemController {
      * @return возвращает объект вещи, который был создан
      */
     @PostMapping
-    public ItemDto add(@RequestHeader("X-Sharer-User-Id") long userId,
-                       @Valid @RequestBody ItemDto itemDto) {
-        return itemService.addNewItem(userId, itemDto);
+    public ItemShortDto add(@RequestHeader("X-Sharer-User-Id") long userId,
+                            @Valid @RequestBody ItemShortDto itemShortDto) {
+        return itemService.addNewItem(userId, itemShortDto);
+    }
+
+    /**
+     * Создаёт комментарий вещи пользователя userId после бронирования
+     *
+     * @param userId объекта пользователя
+     * @param userId объекта пользователя
+     * @return возвращает объект вещи, который был создан
+     */
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") long userId,
+                                 @PathVariable long itemId,
+                                 @Valid @RequestBody CommentDto commentDto) {
+        return itemService.addComment(userId, itemId, commentDto);
     }
 
     /**
@@ -71,10 +87,10 @@ public class ItemController {
      * @return возвращает обновленный объект вещи
      */
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId,
-                          @PathVariable long itemId,
-                          @RequestBody ItemDto itemDto) {
-        return itemService.updateItem(userId, itemId, itemDto);
+    public ItemShortDto update(@RequestHeader("X-Sharer-User-Id") long userId,
+                               @PathVariable long itemId,
+                               @RequestBody ItemShortDto itemShortDto) {
+        return itemService.updateItem(userId, itemId, itemShortDto);
     }
 
     /**

@@ -22,7 +22,9 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @Column(name = "START_DATE")
     private LocalDateTime start;
+    @Column(name = "END_DATE")
     private LocalDateTime end;
     @Enumerated(EnumType.STRING)
     private Status status;

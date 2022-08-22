@@ -1,22 +1,31 @@
 package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.Validation;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemShortDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.storage.UserRepository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Класс, ответственный за операции с вещами
@@ -24,6 +33,9 @@ import java.util.stream.Collectors;
 @Service
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
     @Autowired
     private Validation validation;
@@ -31,11 +43,17 @@ public class ItemServiceImpl implements ItemService {
     private ItemMapper itemMapper;
     @Autowired
     private UserMapper userMapper;
-
+    @Autowired
+    private BookingMapper bookingMapper;
+    @Autowired
+    private CommentMapper commentMapper;
 
     @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, UserService userService) {
+    public ItemServiceImpl(ItemRepository itemRepository, BookingRepository bookingRepository, CommentRepository commentRepository, UserRepository userRepository, UserService userService) {
         this.itemRepository = itemRepository;
+        this.bookingRepository = bookingRepository;
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
         this.userService = userService;
     }
 
@@ -44,63 +62,100 @@ public class ItemServiceImpl implements ItemService {
      */
     @Override
     public List<ItemDto> getItems(long userId) {
-        List<Item> items = itemRepository.findAll().stream()
-                .filter(item -> item.getUser().getId() == userId)
-                .collect(Collectors.toList());
+        List<ItemDto> itemsDto = itemMapper.toDto(itemRepository.findAllByUserId(userId));
 
-        return itemMapper.toDto(items);
+        for (ItemDto existItemDto : itemsDto) {
+            setBookings(existItemDto, userId, existItemDto.getId());
+        }
+        return itemsDto;
     }
 
     /**
-     * Возвращает вещь по ID
+     * Возвращает вещь по ID (ItemDto)
      */
     @Override
-    public ItemDto getItemById(long itemId) {
+    public ItemDto getItemDtoById(long userId, long itemId) {
         validation.validationId(itemId);
 
         if (itemRepository.findById(itemId) == null) {
             throw new NotFoundException("Вещь не найдена");
         }
+        ItemDto existItemDto = itemMapper.toDto(itemRepository.findById(itemId));
+        List<CommentDto> existItemComments = commentMapper.toDto(commentRepository.findAllByItemId(itemId));
 
-        return itemMapper.toDto(itemRepository.findById(itemId));
+        existItemDto.setComments(existItemComments);
+
+        return setBookings(existItemDto, userId, itemId);
+    }
+
+    /**
+     * Возвращает вещь по ID (Item)
+     */
+    @Override
+    public Item getItemById(long itemId) {
+        validation.validationId(itemId);
+
+        if (itemRepository.findById(itemId) == null) {
+            throw new NotFoundException("Вещь не найдена");
+        }
+        return itemRepository.findById(itemId);
     }
 
     /**
      * Добавляет вещь
      */
     @Override
-    public ItemDto addNewItem(long userId, ItemDto itemDto) {
-        Item itemForSave = itemMapper.toItem(itemDto);
+    public ItemShortDto addNewItem(long userId, ItemShortDto itemShortDto) {
+        Item itemForSave = itemMapper.toItem(itemShortDto);
         itemForSave.setUser(getExistUser(userId));
 
-        return itemMapper.toDto(itemRepository.save(itemForSave));
+        return itemMapper.toShortDto(itemRepository.save(itemForSave));
+    }
+
+    @Override
+    public CommentDto addComment(long userId, long itemId, CommentDto commentDto) {
+        Booking lastBooking = bookingRepository.findByUserIdAndItemIdAndEndIsBefore(userId, itemId,
+                LocalDateTime.now());
+
+        try {
+            if (lastBooking.getUser().getId() != userId) {
+                throw new ValidationException("Комментарий может оставлять только тот, кто бронировал вещь ранее");
+            } else {
+                Comment commentForSave = commentMapper.toComment(commentDto);
+
+                commentForSave.setItem(itemRepository.findById(itemId));
+                commentForSave.setUser(userRepository.findById(userId));
+                commentForSave.setCreated(LocalDate.now());
+
+                return commentMapper.toDto(commentRepository.save(commentForSave));
+            }
+        } catch (NullPointerException e) {
+            throw new ValidationException(e + "Комментарий может оставлять только тот, кто бронировал вещь ранее");
+        }
     }
 
     /**
      * Валидирует поля объекта и обновляет объект вещи
      */
     @Override
-    public ItemDto updateItem(long userId, long itemId, ItemDto itemDto) {
+    public ItemShortDto updateItem(long userId, long itemId, ItemShortDto itemShortDto) {
         validation.validationId(itemId);
         validation.validationId(userId);
 
         userService.getUserById(userId);
 
-        itemRepository.findAll().stream()
-                .filter(item -> item.getUser().getId() == userId)
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException(String.format("Вещь с id %d для данного пользователя не найдена",
-                        itemId)));
+        if (itemRepository.findAllByUserId(userId).size() == 0) {
+            throw new NotFoundException(String.format("Вещь с id %d для данного пользователя не найдена", itemId));
+        }
 
-
-        itemDto.setId(itemId);
+        itemShortDto.setId(itemId);
 
         Item itemForUpdate = itemRepository.findById(itemId);
-        itemMapper.updateItemFromDto(itemDto, itemForUpdate);
+        itemMapper.updateItemFromDto(itemShortDto, itemForUpdate);
         itemForUpdate.setUser(getExistUser(userId));
         Item updatedItem = itemRepository.save(itemForUpdate);
 
-        return itemMapper.toDto(updatedItem);
+        return itemMapper.toShortDto(updatedItem);
     }
 
     /**
@@ -118,21 +173,29 @@ public class ItemServiceImpl implements ItemService {
      * Поиск вещи по тексту
      */
     @Override
-    public List<ItemDto> searchItemByText(String text) {
-        List<Item> foundItems;
-
+    public List<ItemShortDto> searchItemByText(String text) {
         if (text.isBlank()) {
-            foundItems = new ArrayList<>();
+            return itemMapper.toShortDto(new ArrayList<>());
         } else {
-            foundItems = itemRepository.findAll().stream()
-                    .filter(item -> item.getDescription().toLowerCase().contains(text.toLowerCase()))
-                    .filter(item -> item.getAvailable().equals("true"))
-                    .collect(Collectors.toList());
+            return itemMapper.toShortDto(itemRepository.findAllByAvailableAndDescriptionContainingIgnoreCase("true",
+                    text));
         }
-        return itemMapper.toDto(foundItems);
     }
 
     private User getExistUser(long userId) {
         return userMapper.toUser(userService.getUserById(userId));
+    }
+
+    private ItemDto setBookings(ItemDto itemDto, long userId, long itemId) {
+        Booking lastBookings = bookingRepository.findByItemIdAndItemUserIdAndEndIsBeforeOrderByStart(itemId, userId,
+                LocalDateTime.now());
+
+        Booking nextBookings = bookingRepository.findByItemIdAndItemUserIdAndStartIsAfterOrderByStart(itemId, userId,
+                LocalDateTime.now());
+
+        itemDto.setLastBooking(bookingMapper.toShortDto(lastBookings));
+        itemDto.setNextBooking(bookingMapper.toShortDto(nextBookings));
+
+        return itemDto;
     }
 }

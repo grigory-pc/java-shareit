@@ -67,8 +67,11 @@ public class UserServiceImpl implements UserService {
         validation.validationId(userId);
 
         userDto.setId(userId);
+
         User userForUpdate = userRepository.findById(userId);
+
         userMapper.updateUserFromDto(userDto, userForUpdate);
+
         User updatedUser = userRepository.save(userForUpdate);
 
         return userMapper.toDto(updatedUser);

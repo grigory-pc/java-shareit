@@ -6,23 +6,26 @@ import lombok.RequiredArgsConstructor;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 /**
- * Объект вещи
+ * Объект комментариев
  */
 @Data
-@Table(name = "items")
+@Table(name = "comments")
 @Entity
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class Item {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String name;
-    private String description;
-    private String available;
+    private String text;
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "item_id")
+    private Item item;
+    @ManyToOne
+    @JoinColumn(name = "author_id")
     private User user;
+    private LocalDate created;
 }

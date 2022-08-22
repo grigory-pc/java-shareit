@@ -1,23 +1,22 @@
-package ru.practicum.shareit.user.dto;
+package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDate;
 
 /**
- * Dto пользователя
+ * Dto комментария
  */
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class UserDto {
+public class CommentDto {
     private long id;
-    @Email
     @NotBlank
-    private String email;
-    @NotBlank
-    private String name;
+    private String text;
+    String authorName;
+    LocalDate created;
 }

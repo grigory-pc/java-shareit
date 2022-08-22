@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 /**
@@ -13,18 +12,12 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class BookingDto {
+public class BookingInDto {
     private long id;
-//    @NotBlank
     private LocalDateTime start;
-//    @NotBlank
     private LocalDateTime end;
-//    @NotBlank
     private String status;
-//    @NotBlank
     private long bookerId;
-//    @NotBlank
     private long itemId;
-//    @NotBlank
     private String itemName;
 }

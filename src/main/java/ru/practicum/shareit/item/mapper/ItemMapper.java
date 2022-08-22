@@ -5,6 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemShortDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -14,12 +15,16 @@ import java.util.List;
  */
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
-    Item toItem(ItemDto dto);
+    Item toItem(ItemShortDto dto);
+
+    ItemShortDto toShortDto(Item item);
 
     ItemDto toDto(Item item);
+
+    List<ItemShortDto> toShortDto(Iterable<Item> item);
 
     List<ItemDto> toDto(Iterable<Item> item);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateItemFromDto(ItemDto itemDto, @MappingTarget Item item);
+    void updateItemFromDto(ItemShortDto itemShortDto, @MappingTarget Item item);
 }
