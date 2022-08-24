@@ -10,8 +10,6 @@ import java.util.List;
  * Интерфейс для бронирования вещей
  */
 public interface BookingService {
-    List<BookingOutDto> getBookings(long userId);
-
     BookingOutDto getBookingById(long userId, long bookingId);
 
     List<BookingOutDto> getBookingsByBookerId(long userId, State state);
@@ -21,6 +19,4 @@ public interface BookingService {
     BookingInDto addNewBooking(long userId, BookingInDto bookingInDto);
 
     BookingOutDto updateBookingStatus(long userId, long bookingId, boolean approved);
-
-    void deleteBooking(long userId, long bookingId);
 }

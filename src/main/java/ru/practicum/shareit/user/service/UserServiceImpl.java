@@ -1,7 +1,8 @@
 package ru.practicum.shareit.user.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.Validation;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -15,17 +16,12 @@ import java.util.List;
  * Класс, ответственный за операции с пользователями
  */
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    @Autowired
-    private Validation validation;
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final Validation validation;
+    private final UserMapper userMapper;
 
     /**
      * Возвращает список всех пользователей
@@ -53,6 +49,7 @@ public class UserServiceImpl implements UserService {
      * Добавляет пользователя
      */
     @Override
+    @Transactional
     public UserDto add(UserDto userDto) {
         User newUser = userRepository.save(userMapper.toUser(userDto));
 
@@ -63,6 +60,7 @@ public class UserServiceImpl implements UserService {
      * Валидирует id и обновляет пользователя
      */
     @Override
+    @Transactional
     public UserDto update(long userId, UserDto userDto) {
         validation.validationId(userId);
 
@@ -81,6 +79,7 @@ public class UserServiceImpl implements UserService {
      * Удаление пользователя
      */
     @Override
+    @Transactional
     public void delete(long userId) {
         validation.validationId(userId);
 

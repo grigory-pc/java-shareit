@@ -1,7 +1,8 @@
 package ru.practicum.shareit.item.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.Validation;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -31,31 +32,19 @@ import java.util.List;
  * Класс, ответственный за операции с вещами
  */
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final UserService userService;
-    @Autowired
-    private Validation validation;
-    @Autowired
-    private ItemMapper itemMapper;
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
-    private BookingMapper bookingMapper;
-    @Autowired
-    private CommentMapper commentMapper;
-
-    @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, BookingRepository bookingRepository, CommentRepository commentRepository, UserRepository userRepository, UserService userService) {
-        this.itemRepository = itemRepository;
-        this.bookingRepository = bookingRepository;
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-        this.userService = userService;
-    }
+    private final Validation validation;
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
+    private final BookingMapper bookingMapper;
+    private final CommentMapper commentMapper;
 
     /**
      * Возвращает список всех вещей пользователя
@@ -105,6 +94,7 @@ public class ItemServiceImpl implements ItemService {
      * Добавляет вещь
      */
     @Override
+    @Transactional
     public ItemShortDto addNewItem(long userId, ItemShortDto itemShortDto) {
         Item itemForSave = itemMapper.toItem(itemShortDto);
         itemForSave.setUser(getExistUser(userId));
@@ -113,6 +103,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto addComment(long userId, long itemId, CommentDto commentDto) {
         Booking lastBooking = bookingRepository.findByUserIdAndItemIdAndEndIsBefore(userId, itemId,
                 LocalDateTime.now());
@@ -138,6 +129,7 @@ public class ItemServiceImpl implements ItemService {
      * Валидирует поля объекта и обновляет объект вещи
      */
     @Override
+    @Transactional
     public ItemShortDto updateItem(long userId, long itemId, ItemShortDto itemShortDto) {
         validation.validationId(itemId);
         validation.validationId(userId);
@@ -162,6 +154,7 @@ public class ItemServiceImpl implements ItemService {
      * Удаление вещи
      */
     @Override
+    @Transactional
     public void deleteItem(long userId, long itemId) {
         validation.validationId(userId);
         validation.validationId(itemId);

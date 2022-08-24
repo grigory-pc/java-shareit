@@ -1,7 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.Validation;
 import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.booking.dto.BookingInDto;
@@ -21,40 +22,20 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Класс, ответственный за операции с бронированием
  */
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserService userService;
     private final ItemService itemService;
-    @Autowired
-    private Validation validation;
-    @Autowired
-    private BookingMapper bookingMapper;
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    public BookingServiceImpl(BookingRepository bookingRepository, UserService userService, ItemService itemService) {
-        this.bookingRepository = bookingRepository;
-        this.userService = userService;
-        this.itemService = itemService;
-    }
-
-    /**
-     * Возвращает список всех бронирований
-     */
-    @Override
-    public List<BookingOutDto> getBookings(long userId) {
-        List<Booking> bookings = bookingRepository.findAll().stream()
-                .filter(user -> user.getId() == userId)
-                .collect(Collectors.toList());
-        return bookingMapper.toOutDto(bookings);
-    }
+    private final Validation validation;
+    private final BookingMapper bookingMapper;
+    private final UserMapper userMapper;
 
     /**
      * Возвращает бронь по ID
@@ -102,6 +83,7 @@ public class BookingServiceImpl implements BookingService {
      * Добавляет бронь
      */
     @Override
+    @Transactional
     public BookingInDto addNewBooking(long userId, BookingInDto bookingInDto) {
         validation.validationId(userId);
         validation.validationId(bookingInDto.getItemId());
@@ -129,6 +111,7 @@ public class BookingServiceImpl implements BookingService {
      * Обновляет статус брони
      */
     @Override
+    @Transactional
     public BookingOutDto updateBookingStatus(long userId, long bookingId, boolean approved) {
         validation.validationId(userId);
         validation.validationId(bookingId);
@@ -154,17 +137,6 @@ public class BookingServiceImpl implements BookingService {
         return bookingMapper.toOutDto(updatedBooking);
     }
 
-    /**
-     * Удаляет бронь
-     */
-    @Override
-    public void deleteBooking(long userId, long bookingId) {
-        validation.validationId(userId);
-        validation.validationId(bookingId);
-
-        bookingRepository.deleteById(bookingId);
-    }
-
     private User getExistUser(long userId) {
         return userMapper.toUser(userService.getUserById(userId));
     }
@@ -178,19 +150,20 @@ public class BookingServiceImpl implements BookingService {
             case ALL:
                 return bookingMapper.toOutDto(bookingRepository.findAllByUserId_OrderByStartDesc(userId));
             case CURRENT:
-                return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndStartIsBeforeAndEndIsAfterOrderByStart(
-                        userId, LocalDateTime.now(), LocalDateTime.now()));
+                return bookingMapper.toOutDto(bookingRepository.
+                        findAllByUserIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, LocalDateTime.now(),
+                                LocalDateTime.now()));
             case FUTURE:
-                return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndStartIsAfterOrderByStart(userId,
+                return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndStartIsAfterOrderByStartDesc(userId,
                         LocalDateTime.now()));
             case PAST:
-                return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndEndIsBeforeOrderByStart(userId,
+                return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndEndIsBeforeOrderByStartDesc(userId,
                         LocalDateTime.now()));
             case REJECTED:
-                return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndStatusOrderByStart(userId,
+                return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndStatusOrderByStartDesc(userId,
                         Status.REJECTED));
             case WAITING:
-                return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndStatusOrderByStart(userId,
+                return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndStatusOrderByStartDesc(userId,
                         Status.WAITING));
             default:
                 throw new StateException();
@@ -202,19 +175,20 @@ public class BookingServiceImpl implements BookingService {
             case ALL:
                 return bookingMapper.toOutDto(bookingRepository.findAllByItemUserId_OrderByStartDesc(userId));
             case CURRENT:
-                return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndStartIsBeforeAndEndIsAfterOrderByStart(
-                        userId, LocalDateTime.now(), LocalDateTime.now()));
+                return bookingMapper.toOutDto(bookingRepository.
+                        findAllByItemUserIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, LocalDateTime.now(),
+                                LocalDateTime.now()));
             case FUTURE:
-                return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndStartIsAfterOrderByStart(userId,
+                return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndStartIsAfterOrderByStartDesc(userId,
                         LocalDateTime.now()));
             case PAST:
-                return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndEndIsBeforeOrderByStart(userId,
+                return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndEndIsBeforeOrderByStartDesc(userId,
                         LocalDateTime.now()));
             case REJECTED:
-                return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndStatusOrderByStart(userId,
+                return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndStatusOrderByStartDesc(userId,
                         Status.REJECTED));
             case WAITING:
-                return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndStatusOrderByStart(userId,
+                return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndStatusOrderByStartDesc(userId,
                         Status.WAITING));
             default:
                 throw new StateException();

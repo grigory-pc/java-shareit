@@ -16,25 +16,25 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, CrudRep
 
     List<Booking> findAllByUserId_OrderByStartDesc(long userId);
 
-    List<Booking> findAllByUserIdAndStartIsBeforeAndEndIsAfterOrderByStart(long userId, LocalDateTime localDateTimeNow,
+    List<Booking> findAllByUserIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(long userId, LocalDateTime localDateTimeNow,
                                                                            LocalDateTime localDateTimeNowNow);
 
-    List<Booking> findAllByUserIdAndStartIsAfterOrderByStart(long userId, LocalDateTime localDateTimeNow);
+    List<Booking> findAllByUserIdAndStartIsAfterOrderByStartDesc(long userId, LocalDateTime localDateTimeNow);
 
-    List<Booking> findAllByUserIdAndEndIsBeforeOrderByStart(long userId, LocalDateTime localDateTimeNow);
+    List<Booking> findAllByUserIdAndEndIsBeforeOrderByStartDesc(long userId, LocalDateTime localDateTimeNow);
 
-    List<Booking> findAllByUserIdAndStatusOrderByStart(long userId, Status status);
+    List<Booking> findAllByUserIdAndStatusOrderByStartDesc(long userId, Status status);
 
     List<Booking> findAllByItemUserId_OrderByStartDesc(long itemId);
 
-    List<Booking> findAllByItemUserIdAndStartIsBeforeAndEndIsAfterOrderByStart(long userId, LocalDateTime localDateTimeNow,
+    List<Booking> findAllByItemUserIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(long userId, LocalDateTime localDateTimeNow,
                                                                                LocalDateTime localDateTimeNowNow);
 
-    List<Booking> findAllByItemUserIdAndStartIsAfterOrderByStart(long userId, LocalDateTime localDateTimeNow);
+    List<Booking> findAllByItemUserIdAndStartIsAfterOrderByStartDesc(long userId, LocalDateTime localDateTimeNow);
 
-    List<Booking> findAllByItemUserIdAndEndIsBeforeOrderByStart(long userId, LocalDateTime localDateTimeNow);
+    List<Booking> findAllByItemUserIdAndEndIsBeforeOrderByStartDesc(long userId, LocalDateTime localDateTimeNow);
 
-    List<Booking> findAllByItemUserIdAndStatusOrderByStart(long userId, Status status);
+    List<Booking> findAllByItemUserIdAndStatusOrderByStartDesc(long userId, Status status);
 
     Booking findByItemIdAndItemUserIdAndStartIsAfterOrderByStart(long itemId, long userId, LocalDateTime localDateTimeNow);
 

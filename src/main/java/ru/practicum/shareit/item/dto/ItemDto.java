@@ -26,5 +26,5 @@ public class ItemDto {
     private String available;
     private BookingShortDto lastBooking;
     private BookingShortDto nextBooking;
-    List<CommentDto> comments;
+    private List<CommentDto> comments;
 }
