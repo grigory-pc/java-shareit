@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.storage;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemShortDto;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 @Repository
 public class ItemStorageInMemory implements ItemStorage {
     private long itemIdGenerated;
-    private final Map<Long, List<ItemDto>> userItems = new HashMap<>();
+    private final Map<Long, List<ItemShortDto>> userItems = new HashMap<>();
 
     /**
      * Возвращает список всех вещей пользователя
      */
     @Override
-    public List<ItemDto> getItems(long userId) {
+    public List<ItemShortDto> getItems(long userId) {
         return userItems.get(userId);
     }
 
@@ -30,7 +30,7 @@ public class ItemStorageInMemory implements ItemStorage {
      * Возвращает вещь по ID
      */
     @Override
-    public ItemDto getItemById(long itemId) {
+    public ItemShortDto getItemById(long itemId) {
         return userItems.values().stream()
                 .flatMap(list -> list.stream())
                 .filter(item -> item.getId() == itemId)
@@ -43,31 +43,31 @@ public class ItemStorageInMemory implements ItemStorage {
      * Добавляет вещь
      */
     @Override
-    public ItemDto add(long userId, ItemDto itemDto) {
+    public ItemShortDto add(long userId, ItemShortDto itemShortDto) {
         if (!userItems.containsKey(userId)) {
             userItems.put(userId, new ArrayList<>());
         }
-        itemDto.setId(generateId());
-        userItems.get(userId).add(itemDto);
+        itemShortDto.setId(generateId());
+        userItems.get(userId).add(itemShortDto);
 
-        return itemDto;
+        return itemShortDto;
     }
 
     /**
      * Валидирует поля объекта и обновляет вещь в памяти
      */
     @Override
-    public ItemDto update(long userId, ItemDto itemDtoExisting, ItemDto itemDto) {
-        if (!(itemDto.getAvailable() == null)) {
-            itemDtoExisting.setAvailable(itemDto.getAvailable());
+    public ItemShortDto update(long userId, ItemShortDto itemShortDtoExisting, ItemShortDto itemShortDto) {
+        if (!(itemShortDto.getAvailable() == null)) {
+            itemShortDtoExisting.setAvailable(itemShortDto.getAvailable());
         }
-        if (!(itemDto.getName() == null)) {
-            itemDtoExisting.setName(itemDto.getName());
+        if (!(itemShortDto.getName() == null)) {
+            itemShortDtoExisting.setName(itemShortDto.getName());
         }
-        if (!(itemDto.getDescription() == null)) {
-            itemDtoExisting.setDescription(itemDto.getDescription());
+        if (!(itemShortDto.getDescription() == null)) {
+            itemShortDtoExisting.setDescription(itemShortDto.getDescription());
         }
-        return itemDtoExisting;
+        return itemShortDtoExisting;
     }
 
     /**
@@ -75,7 +75,7 @@ public class ItemStorageInMemory implements ItemStorage {
      */
     @Override
     public void delete(long userId, long itemId) {
-        for (ItemDto itemOfUser : userItems.get(userId)) {
+        for (ItemShortDto itemOfUser : userItems.get(userId)) {
             if (itemOfUser.getId() == itemId) {
                 userItems.get(userId).remove(itemOfUser);
             }
@@ -83,8 +83,8 @@ public class ItemStorageInMemory implements ItemStorage {
     }
 
     @Override
-    public List<ItemDto> search(String text) {
-        List<ItemDto> foundItems = new ArrayList<>();
+    public List<ItemShortDto> search(String text) {
+        List<ItemShortDto> foundItems = new ArrayList<>();
 
         if (!text.isBlank()) {
             foundItems = userItems.values().stream()
@@ -100,7 +100,7 @@ public class ItemStorageInMemory implements ItemStorage {
      * Возвращает вещь пользователя по ID
      */
     @Override
-    public ItemDto getItemByIdAndUserId(long userId, long itemId) {
+    public ItemShortDto getItemByIdAndUserId(long userId, long itemId) {
         if (!userItems.containsKey(userId)) {
             throw new NotFoundException(String.format("У пользователя с id %d нет вещей",
                     userId));
