@@ -12,7 +12,9 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long>, CrudRepository<Item, Long> {
     Item findById(long id);
 
-    List<Item> findAllByUserId (long userId);
+    List<Item> findAllByUserId(long userId);
 
     List<Item> findAllByAvailableAndDescriptionContainingIgnoreCase(String available, String text);
+
+    List<Item> findAllByItemRequestId(long requestId);
 }

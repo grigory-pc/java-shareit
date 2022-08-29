@@ -13,8 +13,8 @@ import java.util.List;
  * Основной контроллер для работы с бронированием
  */
 @RestController
-@RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@RequestMapping(path = "/bookings")
 public class BookingController {
     private final BookingService bookingService;
 
@@ -34,12 +34,14 @@ public class BookingController {
      * Возвращает список всех бронирований для определенного userId пользователя
      *
      * @param state объекта вещи
-     * @return объект вещи
+     * @return список объектов вещей
      */
     @GetMapping()
     public List<BookingOutDto> getBookingsByBookerId(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                     @RequestParam(defaultValue = "ALL") State state) {
-        return bookingService.getBookingsByBookerId(userId, state);
+                                                     @RequestParam(defaultValue = "ALL") State state,
+                                                     @RequestParam(defaultValue = "0") long from,
+                                                     @RequestParam(defaultValue = "10") int size) {
+        return bookingService.getBookingsByBookerId(userId, state, from, size);
     }
 
     /**
@@ -50,8 +52,10 @@ public class BookingController {
      */
     @GetMapping("/owner")
     public List<BookingOutDto> getBookingsByOwnerId(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                    @RequestParam(defaultValue = "ALL") State state) {
-        return bookingService.getBookingsByOwnerId(userId, state);
+                                                    @RequestParam(defaultValue = "ALL") State state,
+                                                    @RequestParam(defaultValue = "0") long from,
+                                                    @RequestParam(defaultValue = "10") int size) {
+        return bookingService.getBookingsByOwnerId(userId, state, from, size);
     }
 
     /**

@@ -11,7 +11,7 @@ import java.util.List;
  * Интерфейс для сервиса вещей
  */
 public interface ItemService {
-    List<ItemDto> getItems(long userId);
+    List<ItemDto> getItems(long userId, long from, int size);
 
     ItemDto getItemDtoById(long userId, long itemId);
 
@@ -25,5 +25,5 @@ public interface ItemService {
 
     void deleteItem(long userId, long itemId);
 
-    List<ItemShortDto> searchItemByText(String text);
+    List<ItemShortDto> searchItemByText(String text, long from, int size);
 }

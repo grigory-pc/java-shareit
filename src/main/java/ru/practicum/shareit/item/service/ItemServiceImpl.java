@@ -18,6 +18,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.requests.storage.ItemRequestRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -39,6 +40,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final UserService userService;
     private final Validation validation;
     private final ItemMapper itemMapper;
@@ -50,7 +52,11 @@ public class ItemServiceImpl implements ItemService {
      * Возвращает список всех вещей пользователя
      */
     @Override
-    public List<ItemDto> getItems(long userId) {
+    public List<ItemDto> getItems(long userId, long from, int size) {
+        validation.validationId(userId);
+        validation.validationId(size);
+        validation.validationFrom(from);
+
         List<ItemDto> itemsDto = itemMapper.toDto(itemRepository.findAllByUserId(userId));
 
         for (ItemDto existItemDto : itemsDto) {
@@ -97,7 +103,9 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemShortDto addNewItem(long userId, ItemShortDto itemShortDto) {
         Item itemForSave = itemMapper.toItem(itemShortDto);
+
         itemForSave.setUser(getExistUser(userId));
+        itemForSave.setItemRequest(itemRequestRepository.findById(itemShortDto.getRequestId()));
 
         return itemMapper.toShortDto(itemRepository.save(itemForSave));
     }
@@ -166,7 +174,10 @@ public class ItemServiceImpl implements ItemService {
      * Поиск вещи по тексту
      */
     @Override
-    public List<ItemShortDto> searchItemByText(String text) {
+    public List<ItemShortDto> searchItemByText(String text, long from, int size) {
+        validation.validationId(size);
+        validation.validationFrom(from);
+
         if (text.isBlank()) {
             return itemMapper.toShortDto(new ArrayList<>());
         } else {

@@ -61,8 +61,11 @@ public class BookingServiceImpl implements BookingService {
      * Возвращает все брони пользователя по его userId
      */
     @Override
-    public List<BookingOutDto> getBookingsByBookerId(long userId, State state) {
+    public List<BookingOutDto> getBookingsByBookerId(long userId, State state, long from, int size) {
         validation.validationId(userId);
+        validation.validationId(size);
+        validation.validationFrom(from);
+
         userService.getUserById(userId);
 
         return getBookingsForBookerFilteredByState(userId, state);
@@ -72,8 +75,11 @@ public class BookingServiceImpl implements BookingService {
      * Возвращает все брони владельца вещей по его userId
      */
     @Override
-    public List<BookingOutDto> getBookingsByOwnerId(long userId, State state) {
+    public List<BookingOutDto> getBookingsByOwnerId(long userId, State state, long from, int size) {
         validation.validationId(userId);
+        validation.validationId(size);
+        validation.validationFrom(from);
+
         userService.getUserById(userId);
 
         return getBookingsForOwnerFilteredByState(userId, state);

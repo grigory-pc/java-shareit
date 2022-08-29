@@ -26,8 +26,10 @@ public class ItemController {
      * @return списка объектов вещей
      */
     @GetMapping
-    public List<ItemDto> get(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemService.getItems(userId);
+    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId,
+                             @RequestParam(defaultValue = "0") long from,
+                             @RequestParam(defaultValue = "10") int size) {
+        return itemService.getItems(userId, from, size);
     }
 
     /**
@@ -49,8 +51,10 @@ public class ItemController {
      * @return список объектов вещей
      */
     @GetMapping("/search")
-    public List<ItemShortDto> searchItemByText(@RequestParam String text) {
-        return itemService.searchItemByText(text);
+    public List<ItemShortDto> searchItemByText(@RequestParam String text,
+                                               @RequestParam(defaultValue = "0") long from,
+                                               @RequestParam(defaultValue = "10") int size) {
+        return itemService.searchItemByText(text, from, size);
     }
 
     /**

@@ -12,9 +12,9 @@ import java.util.List;
 public interface BookingService {
     BookingOutDto getBookingById(long userId, long bookingId);
 
-    List<BookingOutDto> getBookingsByBookerId(long userId, State state);
+    List<BookingOutDto> getBookingsByBookerId(long userId, State state, long from, int size);
 
-    List<BookingOutDto> getBookingsByOwnerId(long userId, State state);
+    List<BookingOutDto> getBookingsByOwnerId(long userId, State state, long from, int size);
 
     BookingInDto addNewBooking(long userId, BookingInDto bookingInDto);
 
