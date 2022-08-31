@@ -2,8 +2,11 @@ package ru.practicum.shareit.requests.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.OffsetBasedPageRequest;
 import ru.practicum.shareit.Validation;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -40,28 +43,21 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         userService.getUserById(userId);
 
-        List<ItemRequestDto> existItemRequestDto = itemRequestMapper.toDto(itemRequestRepository
-                .findAllByUserIdOrderByCreatedDesc(userId));
+        List<ItemRequest> existItemRequest = itemRequestRepository
+                .findAllByUserIdOrderByCreatedDesc(userId);
 
-        if (existItemRequestDto.size() > 0) {
-            System.out.println("check");
-        }
-
-        for (ItemRequestDto itemRequestDto : existItemRequestDto) {
-            List<ItemDto> existItemDto = itemMapper.toDto(itemRepository.findAllByItemRequestId(itemRequestDto.getId()));
-
-            itemRequestDto.setItems(existItemDto);
-        }
-        return existItemRequestDto;
+        return setItems(existItemRequest);
     }
 
     @Override
-    public List<ItemRequestDto> getAllItemRequest(long userId, long from, int size) {
+    public List<ItemRequestDto> getAllItemRequest(long userId, int from, int size) {
         validation.validationId(userId);
-        validation.validationId(size);
-        validation.validationFrom(from);
 
-        return null;
+        Pageable pageable = OffsetBasedPageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "created"));
+
+        List<ItemRequest> existItemRequest = itemRequestRepository.findAllByUserIdIsNot(userId, pageable);
+
+        return setItems(existItemRequest);
     }
 
     @Override
@@ -73,7 +69,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         if (itemRequestRepository.findById(requestId) == null) {
             throw new NotFoundException("Запрос не найден");
         }
-
         ItemRequestDto existItemRequestDto = itemRequestMapper.toDto(itemRequestRepository.findById(requestId));
 
         List<ItemDto> existItemDto = itemMapper.toDto(itemRepository.findAllByItemRequestId(requestId));
@@ -99,5 +94,16 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         itemRequestForSave.setCreated(LocalDateTime.now());
 
         return itemRequestMapper.toDto(itemRequestRepository.save(itemRequestForSave));
+    }
+
+    private List<ItemRequestDto> setItems(List<ItemRequest> existItemRequest) {
+        List<ItemRequestDto> existItemRequestDto = itemRequestMapper.toDto(existItemRequest);
+
+        for (ItemRequestDto itemRequestDto : existItemRequestDto) {
+            List<ItemDto> existItemDto = itemMapper.toDto(itemRepository.findAllByItemRequestId(itemRequestDto.getId()));
+
+            itemRequestDto.setItems(existItemDto);
+        }
+        return existItemRequestDto;
     }
 }

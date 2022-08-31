@@ -1,8 +1,11 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.OffsetBasedPageRequest;
 import ru.practicum.shareit.Validation;
 import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.booking.dto.BookingInDto;
@@ -61,28 +64,28 @@ public class BookingServiceImpl implements BookingService {
      * Возвращает все брони пользователя по его userId
      */
     @Override
-    public List<BookingOutDto> getBookingsByBookerId(long userId, State state, long from, int size) {
+    public List<BookingOutDto> getBookingsByBookerId(long userId, State state, int from, int size) {
         validation.validationId(userId);
         validation.validationId(size);
         validation.validationFrom(from);
 
         userService.getUserById(userId);
 
-        return getBookingsForBookerFilteredByState(userId, state);
+        return getBookingsForBookerFilteredByState(userId, state, from, size);
     }
 
     /**
      * Возвращает все брони владельца вещей по его userId
      */
     @Override
-    public List<BookingOutDto> getBookingsByOwnerId(long userId, State state, long from, int size) {
+    public List<BookingOutDto> getBookingsByOwnerId(long userId, State state, int from, int size) {
         validation.validationId(userId);
         validation.validationId(size);
         validation.validationFrom(from);
 
         userService.getUserById(userId);
 
-        return getBookingsForOwnerFilteredByState(userId, state);
+        return getBookingsForOwnerFilteredByState(userId, state, from, size);
     }
 
     /**
@@ -151,51 +154,55 @@ public class BookingServiceImpl implements BookingService {
         return itemService.getItemById(itemId);
     }
 
-    List<BookingOutDto> getBookingsForBookerFilteredByState(long userId, State state) {
+    List<BookingOutDto> getBookingsForBookerFilteredByState(long userId, State state, int from, int size) {
+        Pageable pageable = OffsetBasedPageRequest.of(from, size);
+
         switch (state) {
             case ALL:
-                return bookingMapper.toOutDto(bookingRepository.findAllByUserId_OrderByStartDesc(userId));
+                return bookingMapper.toOutDto(bookingRepository.findAllByUserId_OrderByStartDesc(userId, pageable));
             case CURRENT:
                 return bookingMapper.toOutDto(bookingRepository.
                         findAllByUserIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, LocalDateTime.now(),
-                                LocalDateTime.now()));
+                                LocalDateTime.now(), pageable));
             case FUTURE:
                 return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndStartIsAfterOrderByStartDesc(userId,
-                        LocalDateTime.now()));
+                        LocalDateTime.now(), pageable));
             case PAST:
                 return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndEndIsBeforeOrderByStartDesc(userId,
-                        LocalDateTime.now()));
+                        LocalDateTime.now(), pageable));
             case REJECTED:
                 return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndStatusOrderByStartDesc(userId,
-                        Status.REJECTED));
+                        Status.REJECTED, pageable));
             case WAITING:
                 return bookingMapper.toOutDto(bookingRepository.findAllByUserIdAndStatusOrderByStartDesc(userId,
-                        Status.WAITING));
+                        Status.WAITING, pageable));
             default:
                 throw new StateException();
         }
     }
 
-    List<BookingOutDto> getBookingsForOwnerFilteredByState(long userId, State state) {
+    List<BookingOutDto> getBookingsForOwnerFilteredByState(long userId, State state, int from, int size) {
+        Pageable pageable = OffsetBasedPageRequest.of(from, size);
+
         switch (state) {
             case ALL:
-                return bookingMapper.toOutDto(bookingRepository.findAllByItemUserId_OrderByStartDesc(userId));
+                return bookingMapper.toOutDto(bookingRepository.findAllByItemUserId_OrderByStartDesc(userId, pageable));
             case CURRENT:
                 return bookingMapper.toOutDto(bookingRepository.
                         findAllByItemUserIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, LocalDateTime.now(),
-                                LocalDateTime.now()));
+                                LocalDateTime.now(), pageable));
             case FUTURE:
                 return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndStartIsAfterOrderByStartDesc(userId,
-                        LocalDateTime.now()));
+                        LocalDateTime.now(), pageable));
             case PAST:
                 return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndEndIsBeforeOrderByStartDesc(userId,
-                        LocalDateTime.now()));
+                        LocalDateTime.now(), pageable));
             case REJECTED:
                 return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndStatusOrderByStartDesc(userId,
-                        Status.REJECTED));
+                        Status.REJECTED, pageable));
             case WAITING:
                 return bookingMapper.toOutDto(bookingRepository.findAllByItemUserIdAndStatusOrderByStartDesc(userId,
-                        Status.WAITING));
+                        Status.WAITING, pageable));
             default:
                 throw new StateException();
         }

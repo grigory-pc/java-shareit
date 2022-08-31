@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.OffsetBasedPageRequest;
 import ru.practicum.shareit.Validation;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -52,12 +54,12 @@ public class ItemServiceImpl implements ItemService {
      * Возвращает список всех вещей пользователя
      */
     @Override
-    public List<ItemDto> getItems(long userId, long from, int size) {
+    public List<ItemDto> getItems(long userId, int from, int size) {
         validation.validationId(userId);
-        validation.validationId(size);
-        validation.validationFrom(from);
 
-        List<ItemDto> itemsDto = itemMapper.toDto(itemRepository.findAllByUserId(userId));
+        Pageable pageable = OffsetBasedPageRequest.of(from, size);
+
+        List<ItemDto> itemsDto = itemMapper.toDto(itemRepository.findAllByUserId(userId, pageable));
 
         for (ItemDto existItemDto : itemsDto) {
             setBookings(existItemDto, userId, existItemDto.getId());
@@ -144,7 +146,7 @@ public class ItemServiceImpl implements ItemService {
 
         userService.getUserById(userId);
 
-        if (itemRepository.findAllByUserId(userId).size() == 0) {
+        if (itemRepository.findAllByIdAndUserId(itemId, userId).size() == 0) {
             throw new NotFoundException(String.format("Вещь с id %d для данного пользователя не найдена", itemId));
         }
 
@@ -174,15 +176,14 @@ public class ItemServiceImpl implements ItemService {
      * Поиск вещи по тексту
      */
     @Override
-    public List<ItemShortDto> searchItemByText(String text, long from, int size) {
-        validation.validationId(size);
-        validation.validationFrom(from);
+    public List<ItemShortDto> searchItemByText(String text, int from, int size) {
+        Pageable pageable = OffsetBasedPageRequest.of(from, size);
 
         if (text.isBlank()) {
             return itemMapper.toShortDto(new ArrayList<>());
         } else {
             return itemMapper.toShortDto(itemRepository.findAllByAvailableAndDescriptionContainingIgnoreCase("true",
-                    text));
+                    text, pageable));
         }
     }
 
