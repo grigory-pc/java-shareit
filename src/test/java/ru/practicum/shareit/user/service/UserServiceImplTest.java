@@ -46,12 +46,12 @@ class UserServiceImplTest {
         incorrectId = 2L;
     }
 
-    @DisplayName("GIVEN an user" +
+    @DisplayName("GIVEN an user " +
             "WHEN user saved to DB " +
             "THEN save method called 1 time and return user")
     @Test
     void Test1_shouldCallSaveMethodWhenAddUser() {
-        when(userRepository.save(user))
+        when(userRepository.save(any(User.class)))
                 .thenReturn(user);
 
         UserDto userDto = userService.add(userMapper.toDto(user));
@@ -60,56 +60,56 @@ class UserServiceImplTest {
         assertEquals(user, userMapper.toUser(userDto));
     }
 
-    @DisplayName("GIVEN an user id" +
+    @DisplayName("GIVEN an user id " +
             "WHEN getUserById method with id called " +
             "THEN findById method called at most 2 times and return user")
     @Test
     void Test2_shouldFindUserById() {
-        when(userRepository.findById(id))
+        when(userRepository.findById(anyLong()))
                 .thenReturn(user);
 
         UserDto userDto = userService.getUserById(id);
 
-        verify(userRepository, atMost(2)).findById(id);
+        verify(userRepository, atMost(2)).findById(anyLong());
         assertEquals(user, userMapper.toUser(userDto));
     }
 
-    @DisplayName("GIVEN an user id" +
+    @DisplayName("GIVEN an user id " +
             "WHEN getUserById method with incorrect id called " +
-            "THEN findById method called at most 2 times and return error")
+            "THEN return error")
     @Test
     void Test3_shouldReturnExceptionWhenFindUserByIncorrectId() {
-        when(userRepository.findById(incorrectId))
+        when(userRepository.findById(anyLong()))
                 .thenThrow(new NotFoundException("Пользователь не найден"));
 
         assertThrows(NotFoundException.class, () -> userService.getUserById(incorrectId));
     }
 
-    @DisplayName("GIVEN an user and user id" +
+    @DisplayName("GIVEN an user and user id " +
             "WHEN user updated to DB " +
             "THEN save method called 1 time and return user")
     @Test
     void Test4_shouldCallSaveMethodWhenUpdateUser() {
-        when(userRepository.save(user))
+        when(userRepository.save(any(User.class)))
                 .thenReturn(user);
-        when(userRepository.findById(id))
+        when(userRepository.findById(anyLong()))
                 .thenReturn(user);
 
         UserDto userDto = userService.update(id, userMapper.toDto(user));
 
         verify(userRepository, times(1)).save(user);
-        verify(userRepository, times(1)).findById(id);
+        verify(userRepository, times(1)).findById(anyLong());
         assertEquals(user, userMapper.toUser(userDto));
     }
 
-    @DisplayName("GIVEN an user" +
-            "WHEN user updated to DB " +
+    @DisplayName("GIVEN an user id " +
+            "WHEN try delete user from DB " +
             "THEN delete method called 1 time")
     @Test
     void Test5_shouldCallDeleteMethodWhenDeleteUser() {
         userService.delete(id);
 
-        verify(userRepository, times(1)).deleteById(id);
+        verify(userRepository, times(1)).deleteById(anyLong());
     }
 
     @DisplayName("GIVEN " +

@@ -7,12 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
-import ru.practicum.shareit.OffsetBasedPageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.Validation;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.item.mapper.ItemMapperImpl;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
@@ -21,7 +19,6 @@ import ru.practicum.shareit.requests.mapper.ItemRequestMapperImpl;
 import ru.practicum.shareit.requests.model.ItemRequest;
 import ru.practicum.shareit.requests.storage.ItemRequestRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.mapper.UserMapperImpl;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.service.UserServiceImpl;
@@ -30,7 +27,6 @@ import ru.practicum.shareit.user.storage.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -46,8 +42,6 @@ class ItemRequestServiceImplTest {
     private ItemRepository itemRepository;
     private Validation validation = new Validation();
     private ItemRequestMapper itemRequestMapper = new ItemRequestMapperImpl();
-    private ItemMapper itemMapper = new ItemMapperImpl();
-    private UserMapper userMapper = new UserMapperImpl();
 
     private UserService userService;
     private ItemRequestService itemRequestService;
@@ -76,10 +70,6 @@ class ItemRequestServiceImplTest {
 
     private Long userId;
     private Long requestId;
-    private Long incorrectId;
-
-    @Mock
-    private OffsetBasedPageRequest pageable;
 
     @BeforeEach
     public void initService() {
@@ -89,92 +79,85 @@ class ItemRequestServiceImplTest {
 
         userId = 1L;
         requestId = 1L;
-        incorrectId = 2L;
     }
 
-    @DisplayName("GIVEN an user id" +
+    @DisplayName("GIVEN an user id " +
             "WHEN getItemRequestByUserId method with id called " +
             "THEN findById method called 1 time and return list of requests")
     @Test
     void Test1_shouldFindItemRequestByUserId() {
-        when(userRepository.findById(1L))
+        when(userRepository.findById(anyLong()))
                 .thenReturn(user);
-        when(itemRequestRepository.findAllByUserIdOrderByCreatedDesc(userId))
+        when(itemRequestRepository.findAllByUserIdOrderByCreatedDesc(anyLong()))
                 .thenReturn(List.of(itemRequest));
 
         List<ItemRequestDto> itemRequestAll = itemRequestService.getItemRequestByUserId(userId);
 
-        verify(itemRequestRepository, times(1)).findAllByUserIdOrderByCreatedDesc(userId);
+        verify(itemRequestRepository, times(1)).findAllByUserIdOrderByCreatedDesc(anyLong());
         assertEquals(List.of(itemRequestMapper.toDto(itemRequest)), itemRequestAll);
     }
 
-    @DisplayName("GIVEN an user id, from id and size" +
+    @DisplayName("GIVEN an user id, from id and size " +
             "WHEN getAllItemRequest method called " +
             "THEN findAllByUserIdIsNot method called 1 time and return list of requests")
     @Test
     void Test2_shouldFindAllItemRequest() {
-        pageable = (OffsetBasedPageRequest) OffsetBasedPageRequest.of(1, 1, Sort.by(Sort.Direction.DESC, "created"));
-
-        when(pageable.getOffset())
-                .thenReturn(1L);
-        when(pageable.getPageSize())
-                .thenReturn(1);
-        when(pageable.getSort())
-                .thenReturn(Sort.by(Sort.Direction.DESC, "created"));
-        when(itemRepository.findAllByItemRequestId(1L))
+        when(itemRepository.findAllByItemRequestId(anyLong()))
                 .thenReturn(List.of(item));
-        when(itemRequestRepository.findAllByUserIdIsNot(1L, pageable))
+        when(itemRequestRepository.findAllByUserIdIsNot(anyLong(), any(Pageable.class)))
                 .thenReturn(List.of(itemRequest));
 
-        List<ItemRequestDto> itemRequestAll = itemRequestService.getAllItemRequest(1L, 1, 1);
+        List<ItemRequestDto> itemRequestAll = itemRequestService.getAllItemRequest(userId, 1, 1);
+        for (ItemRequestDto itemRequestDto : itemRequestAll) {
+            itemRequestDto.setItems(new ArrayList<>());
+        }
 
-
-        verify(itemRequestRepository, times(1)).findAllByUserIdIsNot(1L, pageable);
+        verify(itemRequestRepository, times(1)).findAllByUserIdIsNot(anyLong(), any(Pageable.class));
         assertEquals(List.of(itemRequestMapper.toDto(itemRequest)), itemRequestAll);
     }
 
-    @DisplayName("GIVEN an request id" +
+    @DisplayName("GIVEN a request id " +
             "WHEN getItemRequestById method with id called " +
-            "THEN findAllByItemRequestId method called 1 time and return request")
+            "THEN findAllByItemRequestId method called at most 2 times and return request")
     @Test
     void Test3_shouldFindItemRequestById() {
-        when(userRepository.findById(1L))
+        when(userRepository.findById(anyLong()))
                 .thenReturn(user);
-        when(itemRepository.findAllByItemRequestId(requestId))
+        when(itemRepository.findAllByItemRequestId(anyLong()))
                 .thenReturn(new ArrayList<>());
-        when(itemRequestRepository.findById(1L))
+        when(itemRequestRepository.findById(anyLong()))
                 .thenReturn(itemRequest);
 
-        ItemRequestDto itemRequestDto = itemRequestService.getItemRequestById(1L, 1L);
+        ItemRequestDto itemRequestDto = itemRequestService.getItemRequestById(userId, requestId);
 
-        verify(itemRequestRepository, times(2)).findById(1L);
+        verify(itemRequestRepository, atMost(2)).findById(anyLong());
         assertEquals(itemRequestMapper.toDto(itemRequest), itemRequestDto);
     }
 
-    @DisplayName("GIVEN an request id" +
+    @DisplayName("GIVEN a request id " +
             "WHEN getItemRequestById method with incorrect id called " +
-            "THEN findById method called at most 2 times and return error")
+            "THEN return error")
     @Test
     void Test4_shouldReturnExceptionWhenFindRequestByIncorrectId() {
-        lenient().when(itemRequestRepository.findById(2L))
+        lenient().when(itemRequestRepository.findById(anyLong()))
                 .thenThrow(new NotFoundException("Пользователь не найден"));
 
         assertThrows(NotFoundException.class, () -> itemRequestService.getItemRequestById(1L, 2L));
     }
 
-    @DisplayName("GIVEN an request" +
+    @DisplayName("GIVEN a request " +
             "WHEN request saved to DB " +
-            "THEN save method called 1 time and return item request")
+            "THEN save method called 1 time and return request")
     @Test
     void Test5_shouldCallSaveMethodWhenAddItemRequest() {
-        when(userRepository.findById(1L))
+        when(userRepository.findById(anyLong()))
                 .thenReturn(user);
-        when(itemRequestRepository.save(itemRequest))
+        when(itemRequestRepository.save(any(ItemRequest.class)))
                 .thenReturn(itemRequest);
 
-        ItemRequestDto itemRequestDto = itemRequestService.addItemRequest(1L, itemRequestMapper.toDto(itemRequest));
+        ItemRequestDto itemRequestDto = itemRequestService.addItemRequest(userId, itemRequestMapper.toDto(itemRequest));
 
-        verify(itemRequestRepository, times(1)).save(itemRequest);
+        verify(itemRequestRepository, times(1)).save(any(ItemRequest.class));
         assertEquals(itemRequest.getId(), itemRequestMapper.toItemRequest(itemRequestDto).getId());
         assertEquals(itemRequest.getDescription(), itemRequestMapper.toItemRequest(itemRequestDto).getDescription());
     }
