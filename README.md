@@ -42,7 +42,7 @@
 ---
 Тесты написаны на базе JUnit 5.
 
-![JUnit5](https://github.com/grigory-pc/java-shareit/blob/add-bookings/junit5-logo_1?raw=true)
+![JUnit5](https://github.com/grigory-pc/java-shareit/blob/add-bookings/junit5-logo_1.png?raw=true)
 
 
 
