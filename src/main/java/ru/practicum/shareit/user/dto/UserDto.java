@@ -12,6 +12,7 @@ import javax.validation.constraints.NotBlank;
  * Dto пользователя
  */
 @Data
+@Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class UserDto {
