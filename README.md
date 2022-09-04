@@ -30,7 +30,7 @@
 ---
 
 <b>Схема базы данных (БД) сервиса:</b>
-![Схема БД сервиса Share It](https://github.com/grigory-pc/java-shareit/blob/add-bookings/ShareItDBscheme_02.jpg?raw=true)
+![Схема БД сервиса Share It](https://raw.githubusercontent.com/grigory-pc/java-shareit/add-bookings/ShareItDBscheme_01.jpg?raw=true)
 
 ---
 
