@@ -118,7 +118,6 @@ class ItemServiceImplTest {
                 itemRequestRepository, userService, validation, Mappers.getMapper(ItemMapper.class),
                 Mappers.getMapper(UserMapper.class), Mappers.getMapper(BookingMapper.class),
                 Mappers.getMapper(CommentMapper.class));
-
     }
 
     @DisplayName("GIVEN an item id, from id and size " +

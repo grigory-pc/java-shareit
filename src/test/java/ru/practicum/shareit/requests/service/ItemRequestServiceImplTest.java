@@ -63,7 +63,7 @@ class ItemRequestServiceImplTest {
             .id(1L)
             .name("itemTest")
             .description("Test Item")
-            .available("True")
+            .available("true")
             .user(user)
             .itemRequest(itemRequest)
             .build();
@@ -93,6 +93,10 @@ class ItemRequestServiceImplTest {
 
         List<ItemRequestDto> itemRequestAll = itemRequestService.getItemRequestByUserId(userId);
 
+        for (ItemRequestDto itemRequestDto : itemRequestAll) {
+            itemRequestDto.setItems(null);
+        }
+
         verify(itemRequestRepository, times(1)).findAllByUserIdOrderByCreatedDesc(anyLong());
         assertEquals(List.of(itemRequestMapper.toDto(itemRequest)), itemRequestAll);
     }
@@ -108,8 +112,9 @@ class ItemRequestServiceImplTest {
                 .thenReturn(List.of(itemRequest));
 
         List<ItemRequestDto> itemRequestAll = itemRequestService.getAllItemRequest(userId, 1, 1);
+
         for (ItemRequestDto itemRequestDto : itemRequestAll) {
-            itemRequestDto.setItems(new ArrayList<>());
+            itemRequestDto.setItems(null);
         }
 
         verify(itemRequestRepository, times(1)).findAllByUserIdIsNot(anyLong(), any(Pageable.class));
@@ -129,6 +134,8 @@ class ItemRequestServiceImplTest {
                 .thenReturn(itemRequest);
 
         ItemRequestDto itemRequestDto = itemRequestService.getItemRequestById(userId, requestId);
+
+        itemRequestDto.setItems(null);
 
         verify(itemRequestRepository, atMost(2)).findById(anyLong());
         assertEquals(itemRequestMapper.toDto(itemRequest), itemRequestDto);
