@@ -24,6 +24,8 @@
 12. Отклонить или принять запрос на бронирование.
 13. Просмотр бронирований.
 14. Добавление комментариев после завершения бронирования.
+15. Создание запроса вещи.
+16. Поиск запросов вещи и подтверждение запроса.
 
 ---
 
@@ -36,6 +38,11 @@
 При разработке приложения использовались JAVA 11.
 
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=java&logoColor=white)
+
+---
+Тесты написаны на базе JUnit 5.
+
+![JUnit5](https://github.com/grigory-pc/java-shareit/blob/add-bookings/junit5-logo_1?raw=true)
 
 
 
