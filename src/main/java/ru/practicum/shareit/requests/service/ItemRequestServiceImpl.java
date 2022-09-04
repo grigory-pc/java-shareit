@@ -37,6 +37,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRepository itemRepository;
     private final UserService userService;
 
+    /**
+     * Возвращает список запросов по ID пользователя
+     */
     @Override
     public List<ItemRequestDto> getItemRequestByUserId(long userId) {
         validation.validationId(userId);
@@ -49,6 +52,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return setItems(existItemRequest);
     }
 
+    /**
+     * Возвращает список всех запросов
+     */
     @Override
     public List<ItemRequestDto> getAllItemRequest(long userId, int from, int size) {
         validation.validationId(userId);
@@ -60,6 +66,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return setItems(existItemRequest);
     }
 
+    /**
+     * Возвращает запрос по ID
+     */
     @Override
     public ItemRequestDto getItemRequestById(long userId, long requestId) {
         validation.validationId(userId);

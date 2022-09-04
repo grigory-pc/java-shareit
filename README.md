@@ -35,12 +35,12 @@
 ---
 
 Приложение написано на Java.
-При разработке приложения использовались JAVA 11.
+При разработке приложения использовалась JAVA 11.
 
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=java&logoColor=white)
 
 ---
-Тесты написаны на базе JUnit 5.
+Тесты разработаны на базе JUnit 5.
 
 ![JUnit5](https://github.com/grigory-pc/java-shareit/blob/add-item-requests/junit5-logo_1.png?raw=true)
 
