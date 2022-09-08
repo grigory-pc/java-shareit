@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.OffsetBasedPageRequest;
 import ru.practicum.shareit.Validation;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -18,6 +20,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.requests.storage.ItemRequestRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -39,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final UserService userService;
     private final Validation validation;
     private final ItemMapper itemMapper;
@@ -50,8 +54,12 @@ public class ItemServiceImpl implements ItemService {
      * Возвращает список всех вещей пользователя
      */
     @Override
-    public List<ItemDto> getItems(long userId) {
-        List<ItemDto> itemsDto = itemMapper.toDto(itemRepository.findAllByUserId(userId));
+    public List<ItemDto> getItems(long userId, int from, int size) {
+        validation.validationId(userId);
+
+        Pageable pageable = OffsetBasedPageRequest.of(from, size);
+
+        List<ItemDto> itemsDto = itemMapper.toDto(itemRepository.findAllByUserId(userId, pageable));
 
         for (ItemDto existItemDto : itemsDto) {
             setBookings(existItemDto, userId, existItemDto.getId());
@@ -97,7 +105,9 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemShortDto addNewItem(long userId, ItemShortDto itemShortDto) {
         Item itemForSave = itemMapper.toItem(itemShortDto);
+
         itemForSave.setUser(getExistUser(userId));
+        itemForSave.setItemRequest(itemRequestRepository.findById(itemShortDto.getRequestId()));
 
         return itemMapper.toShortDto(itemRepository.save(itemForSave));
     }
@@ -136,7 +146,7 @@ public class ItemServiceImpl implements ItemService {
 
         userService.getUserById(userId);
 
-        if (itemRepository.findAllByUserId(userId).size() == 0) {
+        if (itemRepository.findAllByIdAndUserId(itemId, userId).size() == 0) {
             throw new NotFoundException(String.format("Вещь с id %d для данного пользователя не найдена", itemId));
         }
 
@@ -166,12 +176,14 @@ public class ItemServiceImpl implements ItemService {
      * Поиск вещи по тексту
      */
     @Override
-    public List<ItemShortDto> searchItemByText(String text) {
+    public List<ItemShortDto> searchItemByText(String text, int from, int size) {
+        Pageable pageable = OffsetBasedPageRequest.of(from, size);
+
         if (text.isBlank()) {
             return itemMapper.toShortDto(new ArrayList<>());
         } else {
             return itemMapper.toShortDto(itemRepository.findAllByAvailableAndDescriptionContainingIgnoreCase("true",
-                    text));
+                    text, pageable));
         }
     }
 

@@ -24,18 +24,25 @@
 12. Отклонить или принять запрос на бронирование.
 13. Просмотр бронирований.
 14. Добавление комментариев после завершения бронирования.
+15. Создание запроса вещи.
+16. Поиск запросов вещи и подтверждение запроса.
 
 ---
 
 <b>Схема базы данных (БД) сервиса:</b>
-![Схема БД сервиса Share It](https://github.com/grigory-pc/java-shareit/blob/add-bookings/ShareItDBscheme_01.jpg?raw=true)
+![Схема БД сервиса Share It](https://raw.githubusercontent.com/grigory-pc/java-shareit/add-bookings/ShareItDBscheme_01.jpg?raw=true)
 
 ---
 
 Приложение написано на Java.
-При разработке приложения использовались JAVA 11.
+При разработке приложения использовалась JAVA 11.
 
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=java&logoColor=white)
+
+---
+Тесты разработаны на базе JUnit 5.
+
+![JUnit5](https://github.com/grigory-pc/java-shareit/blob/add-item-requests/junit5-logo_1.png?raw=true)
 
 
 

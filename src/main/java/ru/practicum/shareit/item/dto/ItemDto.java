@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
@@ -13,6 +14,7 @@ import java.util.List;
  * Dto вещи
  */
 @Data
+@Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class ItemDto {
@@ -27,4 +29,5 @@ public class ItemDto {
     private BookingShortDto lastBooking;
     private BookingShortDto nextBooking;
     private List<CommentDto> comments;
+    private int requestId;
 }

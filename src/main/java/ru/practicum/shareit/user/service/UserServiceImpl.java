@@ -29,6 +29,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getUserAll() {
         List<User> users = userRepository.findAll();
+
         return userMapper.toDto(users);
     }
 
@@ -41,7 +42,6 @@ public class UserServiceImpl implements UserService {
         if (userRepository.findById(userId) == null) {
             throw new NotFoundException("Пользователь не найден");
         }
-
         return userMapper.toDto(userRepository.findById(userId));
     }
 
