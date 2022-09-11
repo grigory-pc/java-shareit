@@ -1,48 +1,89 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookItemRequestDto;
-import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.dto.BookingInDto;
+import ru.practicum.shareit.booking.dto.State;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
+import java.util.Map;
 
-@Controller
-@RequestMapping(path = "/bookings")
-@RequiredArgsConstructor
-@Slf4j
+/**
+ * Основной контроллер для работы с бронированием
+ */
 @Validated
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(path = "/bookings")
 public class BookingController {
-	private final BookingClient bookingClient;
+    private final BookingClient bookingClient;
 
-	@GetMapping
-	public ResponseEntity<Object> getBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-			@RequestParam(name = "state", defaultValue = "all") String stateParam,
-			@PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-			@Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
-		BookingState state = BookingState.from(stateParam)
-				.orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
-		log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
-		return bookingClient.getBookings(userId, state, from, size);
-	}
+    /**
+     * Возвращает информацию о брони по bookingId для определенного userId пользователя или владельца вещи
+     *
+     * @param bookingId объекта вещи
+     * @return объект вещи
+     */
+    @GetMapping("/{bookingId}")
+    public ResponseEntity<Object> getBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                 @PathVariable long bookingId) {
+        return bookingClient.getBookingById(userId, bookingId);
+    }
 
-	@PostMapping
-	public ResponseEntity<Object> bookItem(@RequestHeader("X-Sharer-User-Id") long userId,
-			@RequestBody @Valid BookItemRequestDto requestDto) {
-		log.info("Creating booking {}, userId={}", requestDto, userId);
-		return bookingClient.bookItem(userId, requestDto);
-	}
+    /**
+     * Возвращает список всех бронирований для определенного userId пользователя
+     *
+     * @param state объекта вещи
+     * @return список объектов вещей
+     */
+    @GetMapping()
+    public ResponseEntity<Object> getBookingsByBookerId(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                        @RequestParam(defaultValue = "ALL") State state,
+                                                        @RequestParam(defaultValue = "0") int from,
+                                                        @RequestParam(defaultValue = "10") int size) {
+        return bookingClient.getBookingsByBookerId(userId, state, from, size);
+    }
 
-	@GetMapping("/{bookingId}")
-	public ResponseEntity<Object> getBooking(@RequestHeader("X-Sharer-User-Id") long userId,
-			@PathVariable Long bookingId) {
-		log.info("Get booking {}, userId={}", bookingId, userId);
-		return bookingClient.getBooking(userId, bookingId);
-	}}
+    /**
+     * Возвращает список всех бронирований для определенного userId пользователя - владельца вещи
+     *
+     * @param state объекта вещи
+     * @return объект вещи
+     */
+    @GetMapping("/owner")
+    public ResponseEntity<Object> getBookingsByOwnerId(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                       @RequestParam(defaultValue = "ALL") State state,
+                                                       @RequestParam(defaultValue = "0") int from,
+                                                       @RequestParam(defaultValue = "10") int size) {
+        return bookingClient.getBookingsByOwnerId(userId, state, from, size);
+    }
+
+    /**
+     * Создаёт объект бронирования
+     *
+     * @param userId объекта пользователя
+     * @return возвращает объект бронирования, который был создан
+     */
+    @PostMapping
+    public ResponseEntity<Object> addBooking(@RequestHeader("X-Sharer-User-Id") long userId,
+                                             @Valid @RequestBody BookingInDto bookingInDto) {
+        return bookingClient.addNewBooking(userId, bookingInDto);
+    }
+
+    /**
+     * Обновляет статус бронирования bookingId владельца вещи userId
+     *
+     * @param bookingId объекта бронирования
+     * @param userId    объекта пользователя
+     * @param approved  - true или false
+     * @return возвращает обновленный объект бронирования
+     */
+    @PatchMapping("/{bookingId}")
+    public ResponseEntity<Object> updateBookingStatus(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                      @PathVariable long bookingId,
+                                                      @RequestParam boolean approved) {
+        return bookingClient.updateBookingStatus(userId, bookingId, approved);
+    }
+}
