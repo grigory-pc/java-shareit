@@ -17,11 +17,8 @@ import javax.validation.constraints.NotBlank;
 @RequiredArgsConstructor
 public class ItemShortDto {
     private long id;
-    @NotBlank
     private String name;
-    @NotBlank
     private String description;
-    @NotBlank
     @JsonSerialize(using = StringBooleanSerializer.class)
     private String available;
     private int requestId;

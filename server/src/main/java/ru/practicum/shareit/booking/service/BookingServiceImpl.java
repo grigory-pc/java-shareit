@@ -44,9 +44,6 @@ public class BookingServiceImpl implements BookingService {
      */
     @Override
     public BookingOutDto getBookingById(long userId, long bookingId) {
-        validation.validationId(userId);
-        validation.validationId(bookingId);
-
         if (bookingRepository.findById(bookingId) == null) {
             throw new NotFoundException("бронь не найдена");
         }
@@ -64,10 +61,6 @@ public class BookingServiceImpl implements BookingService {
      */
     @Override
     public List<BookingOutDto> getBookingsByBookerId(long userId, State state, int from, int size) {
-        validation.validationId(userId);
-        validation.validationId(size);
-        validation.validationFrom(from);
-
         userService.getUserById(userId);
 
         return getBookingsForBookerFilteredByState(userId, state, from, size);
@@ -78,10 +71,6 @@ public class BookingServiceImpl implements BookingService {
      */
     @Override
     public List<BookingOutDto> getBookingsByOwnerId(long userId, State state, int from, int size) {
-        validation.validationId(userId);
-        validation.validationId(size);
-        validation.validationFrom(from);
-
         userService.getUserById(userId);
 
         return getBookingsForOwnerFilteredByState(userId, state, from, size);
@@ -93,7 +82,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingInDto addNewBooking(long userId, BookingInDto bookingInDto) {
-        validation.validationId(userId);
         validation.validationId(bookingInDto.getItemId());
         validateDateTimeOfBooking(bookingInDto);
 
@@ -121,9 +109,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingOutDto updateBookingStatus(long userId, long bookingId, boolean approved) {
-        validation.validationId(userId);
-        validation.validationId(bookingId);
-
         Booking bookingForUpdate = bookingRepository.findById(bookingId);
 
         if (bookingForUpdate.getStatus().equals(Status.APPROVED) && approved) {

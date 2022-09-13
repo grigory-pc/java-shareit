@@ -20,11 +20,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemRequestDto {
     private long id;
-    @NotBlank
     private String description;
     private LocalDateTime created;
     private List<ItemDto> items = new ArrayList<>();
-
     public LocalDateTime getCreated() {
         return created;
     }

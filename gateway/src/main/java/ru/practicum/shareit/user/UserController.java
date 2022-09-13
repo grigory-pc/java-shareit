@@ -7,6 +7,7 @@ import ru.practicum.shareit.user.client.UserClient;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 
 /**
  * Основной контроллер для работы с пользователями
@@ -32,7 +33,7 @@ public class UserController {
      * @return объект пользователя
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getUserById(@PathVariable long id) {
+    public ResponseEntity<Object> getUserById(@Positive @PathVariable long id) {
         return userClient.getUserById(id);
     }
 
@@ -53,7 +54,7 @@ public class UserController {
      * @return возвращает обновленный объект пользователя
      */
     @PatchMapping("/{userId}")
-    public ResponseEntity<Object> update(@PathVariable long userId,
+    public ResponseEntity<Object> update(@Positive @PathVariable long userId,
                                          @RequestBody UserDto userDto) {
         return userClient.updateUser(userId, userDto);
     }
@@ -64,7 +65,7 @@ public class UserController {
      * @param id пользователя, которого удалют
      */
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable long id) {
+    public void deleteUser(@Positive @PathVariable long id) {
         userClient.deleteUser(id);
     }
 }

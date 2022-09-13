@@ -38,7 +38,6 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto getUserById(long userId) {
-        validation.validationId(userId);
         if (userRepository.findById(userId) == null) {
             throw new NotFoundException("Пользователь не найден");
         }
@@ -62,8 +61,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto update(long userId, UserDto userDto) {
-        validation.validationId(userId);
-
         userDto.setId(userId);
 
         User userForUpdate = userRepository.findById(userId);
@@ -81,8 +78,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void delete(long userId) {
-        validation.validationId(userId);
-
         userRepository.deleteById(userId);
     }
 }

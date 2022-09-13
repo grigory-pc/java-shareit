@@ -42,7 +42,7 @@ public class UserController {
      * @return возвращает объект пользователя, который был создан
      */
     @PostMapping()
-    public UserDto create(@Valid @RequestBody UserDto userDto) {
+    public UserDto create(@RequestBody UserDto userDto) {
         return userService.add(userDto);
     }
 

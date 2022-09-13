@@ -24,7 +24,6 @@ public class ItemDto {
     @NotBlank
     private String description;
     @NotBlank
-    @JsonSerialize(using = StringBooleanSerializer.class)
     private String available;
     private BookingInDto lastBooking;
     private BookingInDto nextBooking;

@@ -8,6 +8,8 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemShortDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 /**
  * Основной контроллер для работы с вещами
@@ -25,9 +27,9 @@ public class ItemController {
      * @return списка объектов вещей
      */
     @GetMapping
-    public ResponseEntity<Object> getItems(@RequestHeader("X-Sharer-User-Id") long userId,
-                                           @RequestParam(defaultValue = "0") int from,
-                                           @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Object> getItems(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                           @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+                                           @Positive @RequestParam(defaultValue = "10") int size) {
         return itemClient.getItems(userId, from, size);
     }
 
@@ -38,8 +40,8 @@ public class ItemController {
      * @return объект вещи
      */
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
-                               @PathVariable long itemId) {
+    public ResponseEntity<Object> getItemById(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                              @PathVariable long itemId) {
         return itemClient.getItemById(userId, itemId);
     }
 
@@ -51,8 +53,8 @@ public class ItemController {
      */
     @GetMapping("/search")
     public ResponseEntity<Object> searchItemByText(@RequestParam String text,
-                                               @RequestParam(defaultValue = "0") int from,
-                                               @RequestParam(defaultValue = "10") int size) {
+                                                   @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+                                                   @Positive @RequestParam(defaultValue = "10") int size) {
         return itemClient.searchItemByText(text, from, size);
     }
 
@@ -63,8 +65,8 @@ public class ItemController {
      * @return возвращает объект вещи, который был создан
      */
     @PostMapping
-    public ResponseEntity<Object> add(@RequestHeader("X-Sharer-User-Id") long userId,
-                            @Valid @RequestBody ItemShortDto itemShortDto) {
+    public ResponseEntity<Object> add(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                      @Valid @RequestBody ItemShortDto itemShortDto) {
         return itemClient.addNewItem(userId, itemShortDto);
     }
 
@@ -75,9 +77,9 @@ public class ItemController {
      * @return возвращает объект вещи, который был создан
      */
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> addComment(@RequestHeader("X-Sharer-User-Id") long userId,
-                                 @PathVariable long itemId,
-                                 @Valid @RequestBody CommentDto commentDto) {
+    public ResponseEntity<Object> addComment(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                             @Positive @PathVariable long itemId,
+                                             @Valid @RequestBody CommentDto commentDto) {
         return itemClient.addComment(userId, itemId, commentDto);
     }
 
@@ -89,9 +91,9 @@ public class ItemController {
      * @return возвращает обновленный объект вещи
      */
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> update(@RequestHeader("X-Sharer-User-Id") long userId,
-                               @PathVariable long itemId,
-                               @RequestBody ItemShortDto itemShortDto) {
+    public ResponseEntity<Object> update(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                         @Positive @PathVariable long itemId,
+                                         @RequestBody ItemShortDto itemShortDto) {
         return itemClient.updateItem(userId, itemId, itemShortDto);
     }
 
@@ -102,8 +104,8 @@ public class ItemController {
      * @param userId объекта пользователя
      */
     @DeleteMapping("/{itemId}")
-    public void deleteItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                           @PathVariable long itemId) {
+    public void deleteItem(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                           @Positive @PathVariable long itemId) {
         itemClient.deleteItem(userId, itemId);
     }
 }

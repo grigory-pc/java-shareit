@@ -55,8 +55,6 @@ public class ItemServiceImpl implements ItemService {
      */
     @Override
     public List<ItemDto> getItems(long userId, int from, int size) {
-        validation.validationId(userId);
-
         Pageable pageable = OffsetBasedPageRequest.of(from, size);
 
         List<ItemDto> itemsDto = itemMapper.toDto(itemRepository.findAllByUserId(userId, pageable));
@@ -72,8 +70,6 @@ public class ItemServiceImpl implements ItemService {
      */
     @Override
     public ItemDto getItemDtoById(long userId, long itemId) {
-        validation.validationId(itemId);
-
         if (itemRepository.findById(itemId) == null) {
             throw new NotFoundException("Вещь не найдена");
         }
@@ -90,8 +86,6 @@ public class ItemServiceImpl implements ItemService {
      */
     @Override
     public Item getItemById(long itemId) {
-        validation.validationId(itemId);
-
         if (itemRepository.findById(itemId) == null) {
             throw new NotFoundException("Вещь не найдена");
         }
@@ -141,9 +135,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemShortDto updateItem(long userId, long itemId, ItemShortDto itemShortDto) {
-        validation.validationId(itemId);
-        validation.validationId(userId);
-
         userService.getUserById(userId);
 
         if (itemRepository.findAllByIdAndUserId(itemId, userId).size() == 0) {
@@ -166,9 +157,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public void deleteItem(long userId, long itemId) {
-        validation.validationId(userId);
-        validation.validationId(itemId);
-
         itemRepository.deleteById(itemId);
     }
 

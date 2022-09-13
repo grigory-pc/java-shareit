@@ -19,11 +19,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemDto {
     private long id;
-    @NotBlank
     private String name;
-    @NotBlank
     private String description;
-    @NotBlank
     @JsonSerialize(using = StringBooleanSerializer.class)
     private String available;
     private BookingShortDto lastBooking;

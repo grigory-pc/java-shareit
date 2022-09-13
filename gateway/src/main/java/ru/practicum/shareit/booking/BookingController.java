@@ -9,6 +9,8 @@ import ru.practicum.shareit.booking.dto.BookingInDto;
 import ru.practicum.shareit.booking.dto.State;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 /**
  * Основной контроллер для работы с бронированием
@@ -27,8 +29,8 @@ public class BookingController {
      * @return объект вещи
      */
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> getBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                 @PathVariable long bookingId) {
+    public ResponseEntity<Object> getBookingById(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                                 @Positive @PathVariable long bookingId) {
         return bookingClient.getBookingById(userId, bookingId);
     }
 
@@ -39,10 +41,10 @@ public class BookingController {
      * @return список объектов вещей
      */
     @GetMapping()
-    public ResponseEntity<Object> getBookingsByBookerId(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getBookingsByBookerId(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                                         @RequestParam(defaultValue = "ALL") State state,
-                                                        @RequestParam(defaultValue = "0") int from,
-                                                        @RequestParam(defaultValue = "10") int size) {
+                                                        @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+                                                        @Positive @RequestParam(defaultValue = "10") int size) {
         return bookingClient.getBookingsByBookerId(userId, state, from, size);
     }
 
@@ -53,10 +55,10 @@ public class BookingController {
      * @return объект вещи
      */
     @GetMapping("/owner")
-    public ResponseEntity<Object> getBookingsByOwnerId(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getBookingsByOwnerId(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                                        @RequestParam(defaultValue = "ALL") State state,
-                                                       @RequestParam(defaultValue = "0") int from,
-                                                       @RequestParam(defaultValue = "10") int size) {
+                                                       @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+                                                       @Positive @RequestParam(defaultValue = "10") int size) {
         return bookingClient.getBookingsByOwnerId(userId, state, from, size);
     }
 
@@ -67,7 +69,7 @@ public class BookingController {
      * @return возвращает объект бронирования, который был создан
      */
     @PostMapping
-    public ResponseEntity<Object> addBooking(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> addBooking(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                              @Valid @RequestBody BookingInDto bookingInDto) {
         return bookingClient.addNewBooking(userId, bookingInDto);
     }
@@ -82,7 +84,7 @@ public class BookingController {
      */
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> updateBookingStatus(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                      @PathVariable long bookingId,
+                                                      @Positive @PathVariable long bookingId,
                                                       @RequestParam boolean approved) {
         return bookingClient.updateBookingStatus(userId, bookingId, approved);
     }

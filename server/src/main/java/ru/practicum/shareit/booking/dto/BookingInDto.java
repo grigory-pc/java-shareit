@@ -17,13 +17,10 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class BookingInDto {
     private long id;
-    @NotNull
     private LocalDateTime start;
-    @NotNull
     private LocalDateTime end;
     private String status;
     private long bookerId;
-    @NotNull
     private long itemId;
     private String itemName;
 }

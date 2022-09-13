@@ -7,6 +7,8 @@ import ru.practicum.shareit.request.client.ItemRequestClient;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 /**
  * Основной контроллер для работы с запросами
@@ -23,7 +25,7 @@ public class ItemRequestController {
      * @return список запросов пользователя
      */
     @GetMapping()
-    public ResponseEntity<Object> getItemRequestByUserId(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public ResponseEntity<Object> getItemRequestByUserId(@Positive @RequestHeader("X-Sharer-User-Id") long userId) {
         return itemRequestClient.getItemRequestByUserId(userId);
     }
 
@@ -34,9 +36,9 @@ public class ItemRequestController {
      * @return список запросов, созданных другими пользователями
      */
     @GetMapping("/all")
-    public ResponseEntity<Object> getAllItemRequests(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                     @RequestParam(defaultValue = "0") int from,
-                                                     @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Object> getAllItemRequests(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                                     @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+                                                     @Positive @RequestParam(defaultValue = "10") int size) {
         return itemRequestClient.getAllItemRequests(userId, from, size);
     }
 
@@ -47,8 +49,8 @@ public class ItemRequestController {
      * @return объект запроса
      */
     @GetMapping("/{requestId}")
-    public ResponseEntity<Object> getItemRequestById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                     @PathVariable long requestId) {
+    public ResponseEntity<Object> getItemRequestById(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
+                                                     @Positive @PathVariable long requestId) {
         return itemRequestClient.getItemRequestById(userId, requestId);
     }
 
@@ -59,7 +61,7 @@ public class ItemRequestController {
      * @return возвращает объект запроса, который был создан
      */
     @PostMapping
-    public ResponseEntity<Object> addItemRequest(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> addItemRequest(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                                  @Valid @RequestBody ItemRequestDto itemRequestDto) {
         return itemRequestClient.addItemRequest(userId, itemRequestDto);
     }

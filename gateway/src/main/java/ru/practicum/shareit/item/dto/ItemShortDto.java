@@ -22,7 +22,6 @@ public class ItemShortDto {
     @NotBlank
     private String description;
     @NotBlank
-    @JsonSerialize(using = StringBooleanSerializer.class)
     private String available;
     private int requestId;
 }
