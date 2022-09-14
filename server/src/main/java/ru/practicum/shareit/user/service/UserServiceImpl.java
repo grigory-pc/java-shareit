@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.Validation;
@@ -15,12 +16,12 @@ import java.util.List;
 /**
  * Класс, ответственный за операции с пользователями
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final Validation validation;
     private final UserMapper userMapper;
 
     /**
@@ -28,6 +29,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<UserDto> getUserAll() {
+        log.info("Получен запрос на поиск всех пользователей");
+
         List<User> users = userRepository.findAll();
 
         return userMapper.toDto(users);
@@ -38,6 +41,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto getUserById(long userId) {
+        log.info("Получен запрос для пользователя " + userId);
+
         if (userRepository.findById(userId) == null) {
             throw new NotFoundException("Пользователь не найден");
         }
@@ -50,6 +55,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto add(UserDto userDto) {
+        log.info("Получен запрос на добавление пользователя " + userDto.getEmail());
+
         User newUser = userRepository.save(userMapper.toUser(userDto));
 
         return userMapper.toDto(newUser);
@@ -61,6 +68,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto update(long userId, UserDto userDto) {
+        log.info("Получен запрос на обновление пользователя с id = " + userId);
+
         userDto.setId(userId);
 
         User userForUpdate = userRepository.findById(userId);
@@ -78,6 +87,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void delete(long userId) {
+        log.info("Получен запрос на удаление пользователя c id = " + userId);
+
         userRepository.deleteById(userId);
     }
 }

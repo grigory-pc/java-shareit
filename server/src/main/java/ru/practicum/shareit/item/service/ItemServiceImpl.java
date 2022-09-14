@@ -1,11 +1,11 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.OffsetBasedPageRequest;
-import ru.practicum.shareit.Validation;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.storage.BookingRepository;
@@ -34,6 +34,7 @@ import java.util.List;
 /**
  * Класс, ответственный за операции с вещами
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -44,7 +45,6 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final ItemRequestRepository itemRequestRepository;
     private final UserService userService;
-    private final Validation validation;
     private final ItemMapper itemMapper;
     private final UserMapper userMapper;
     private final BookingMapper bookingMapper;
@@ -55,6 +55,8 @@ public class ItemServiceImpl implements ItemService {
      */
     @Override
     public List<ItemDto> getItems(long userId, int from, int size) {
+        log.info("Получен запрос для пользователя " + userId);
+
         Pageable pageable = OffsetBasedPageRequest.of(from, size);
 
         List<ItemDto> itemsDto = itemMapper.toDto(itemRepository.findAllByUserId(userId, pageable));
@@ -70,6 +72,8 @@ public class ItemServiceImpl implements ItemService {
      */
     @Override
     public ItemDto getItemDtoById(long userId, long itemId) {
+        log.info("Получен запрос для пользователя " + userId + " и id вещи " + itemId);
+
         if (itemRepository.findById(itemId) == null) {
             throw new NotFoundException("Вещь не найдена");
         }
@@ -98,6 +102,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemShortDto addNewItem(long userId, ItemShortDto itemShortDto) {
+        log.info("Получен запрос на добавление вещи для пользователя " + userId + " и новой вещи "
+                + itemShortDto.getName());
+
         Item itemForSave = itemMapper.toItem(itemShortDto);
 
         itemForSave.setUser(getExistUser(userId));
@@ -109,6 +116,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(long userId, long itemId, CommentDto commentDto) {
+        log.info("Получен запрос на добавление комментария для пользователя " + userId + " и id вещи " + itemId);
+
         Booking lastBooking = bookingRepository.findByUserIdAndItemIdAndEndIsBefore(userId, itemId,
                 LocalDateTime.now());
 
@@ -135,6 +144,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemShortDto updateItem(long userId, long itemId, ItemShortDto itemShortDto) {
+        log.info("Получен запрос на обновление вещи для пользователя " + userId + " и id вещи " + itemId);
+
         userService.getUserById(userId);
 
         if (itemRepository.findAllByIdAndUserId(itemId, userId).size() == 0) {
@@ -157,6 +168,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public void deleteItem(long userId, long itemId) {
+        log.info("Получен запрос на удаление вещи c id = " + itemId);
+
         itemRepository.deleteById(itemId);
     }
 
@@ -165,6 +178,8 @@ public class ItemServiceImpl implements ItemService {
      */
     @Override
     public List<ItemShortDto> searchItemByText(String text, int from, int size) {
+        log.info("Получен запрос на поиск вещи по тексту: " + text);
+
         Pageable pageable = OffsetBasedPageRequest.of(from, size);
 
         if (text.isBlank()) {

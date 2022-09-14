@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import java.util.List;
 /**
  * Класс, ответственный за операции с бронированием
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -44,6 +46,8 @@ public class BookingServiceImpl implements BookingService {
      */
     @Override
     public BookingOutDto getBookingById(long userId, long bookingId) {
+        log.info("Получен запрос для пользователя " + userId + " и id бронирования " + bookingId);
+
         if (bookingRepository.findById(bookingId) == null) {
             throw new NotFoundException("бронь не найдена");
         }
@@ -61,6 +65,8 @@ public class BookingServiceImpl implements BookingService {
      */
     @Override
     public List<BookingOutDto> getBookingsByBookerId(long userId, State state, int from, int size) {
+        log.info("Получен запрос для пользователя " + userId + " и статуса  " + state);
+
         userService.getUserById(userId);
 
         return getBookingsForBookerFilteredByState(userId, state, from, size);
@@ -71,6 +77,8 @@ public class BookingServiceImpl implements BookingService {
      */
     @Override
     public List<BookingOutDto> getBookingsByOwnerId(long userId, State state, int from, int size) {
+        log.info("Получен запрос для пользователя " + userId + " и статуса  " + state);
+
         userService.getUserById(userId);
 
         return getBookingsForOwnerFilteredByState(userId, state, from, size);
@@ -82,6 +90,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingInDto addNewBooking(long userId, BookingInDto bookingInDto) {
+        log.info("Получен запрос на добавление бронирования для пользователя " + userId
+                + " и нового бронирования для вещи " + bookingInDto.getItemName());
+
         validation.validationId(bookingInDto.getItemId());
         validateDateTimeOfBooking(bookingInDto);
 
@@ -109,6 +120,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingOutDto updateBookingStatus(long userId, long bookingId, boolean approved) {
+        log.info("Получен запрос на обновление статуса бронирования для пользователя " + userId + " и подтверждение = "
+                + approved);
+
         Booking bookingForUpdate = bookingRepository.findById(bookingId);
 
         if (bookingForUpdate.getStatus().equals(Status.APPROVED) && approved) {

@@ -2,12 +2,12 @@ package ru.practicum.shareit.requests.service;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.OffsetBasedPageRequest;
-import ru.practicum.shareit.Validation;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -25,11 +25,11 @@ import java.util.List;
 /**
  * Класс, ответственный за операции с запросами
  */
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
-    private final Validation validation;
     private final ItemRequestMapper itemRequestMapper;
     private final ItemMapper itemMapper;
     private final ItemRequestRepository itemRequestRepository;
@@ -42,6 +42,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
      */
     @Override
     public List<ItemRequestDto> getItemRequestByUserId(long userId) {
+        log.info("Получен запрос для пользователя " + userId);
+
         userService.getUserById(userId);
 
         List<ItemRequest> existItemRequest = itemRequestRepository
@@ -55,6 +57,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
      */
     @Override
     public List<ItemRequestDto> getAllItemRequest(long userId, int from, int size) {
+        log.info("Получен запрос для пользователя " + userId);
+
         Pageable pageable = OffsetBasedPageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "created"));
 
         List<ItemRequest> existItemRequest = itemRequestRepository.findAllByUserIdIsNot(userId, pageable);
@@ -67,6 +71,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
      */
     @Override
     public ItemRequestDto getItemRequestById(long userId, long requestId) {
+        log.info("Получен запрос для пользователя " + userId + " и id request = " + requestId);
+
         userService.getUserById(userId);
 
         if (itemRequestRepository.findById(requestId) == null) {
@@ -87,6 +93,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     @Transactional
     public ItemRequestDto addItemRequest(long userId, ItemRequestDto itemRequestDto) {
+        log.info("Получен запрос на добавление request-а для пользователя " + userId + " и описания request-а "
+                + itemRequestDto.getDescription());
+
         userService.getUserById(userId);
 
         ItemRequest itemRequestForSave = itemRequestMapper.toItemRequest(itemRequestDto);
