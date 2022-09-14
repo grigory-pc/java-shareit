@@ -1,5 +1,6 @@
 package ru.practicum.shareit.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -15,6 +16,7 @@ import javax.sql.DataSource;
 public class DataSourceProd implements DataSourceConfig {
     private final Environment environment;
 
+    @Autowired
     public DataSourceProd(Environment environment) {
         this.environment = environment;
     }
