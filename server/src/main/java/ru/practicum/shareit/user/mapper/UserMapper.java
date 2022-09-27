@@ -10,7 +10,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 
 /**
- * Маппер между объектами Item и ItemDto
+ * Маппер между объектами User и UserDto
  */
 @Mapper(componentModel = "spring")
 public interface UserMapper {
